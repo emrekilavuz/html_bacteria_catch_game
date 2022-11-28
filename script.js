@@ -25,13 +25,12 @@ setInterval(()=>{
 }, 1000);
 
 function createFood(){
-    const prev = document.getElementById('food');
-    if(prev){
+    const foods = document.querySelectorAll('.food');
+    if(foods.length > 3){
         return;
     }
     let foodEl = document.createElement('div');
     foodEl.classList.add('food');
-    foodEl.id = "food";
     foodEl.innerHTML = `
     <img src="${foodImage}" alt="bacteria" />
     `;
@@ -42,6 +41,9 @@ function createFood(){
 }
 
 createFood();
+createFood();
+createFood();
+
 
 
 
@@ -94,24 +96,29 @@ function getRandomLocation() {
 }
 
 function eat(){
-    let foodEl = document.getElementById('food');
-    let intersect = collide(movingEl, foodEl);
+    let foods = document.querySelectorAll('.food');
+    foods.forEach(food => {
+        let intersect = collide(movingEl, food);
+
+        if(intersect){
+            locked = true;
+            score++;
+            scoreEl.innerText = `Skor : ${score}`;
+            food.style.transform = `scale(0)`;
+            movingEl.style.transform = `rotateZ(${rotateDegree}deg) scale(1.1)`;
+            movingEl.style.opacity = 0.9;
+            setTimeout(() => {
+                food.remove();
+                createFood();
+                locked = false;
+                movingEl.style.transform = `rotateZ(${rotateDegree}deg) scale(1)`;
+                movingEl.style.opacity = 1;
+            }, 501);
+        }
+    });
     
-    if(intersect){
-        locked = true;
-        score++;
-        scoreEl.innerText = `Skor : ${score}`;
-        foodEl.style.transform = `scale(0)`;
-        movingEl.style.transform = `rotateZ(${rotateDegree}deg) scale(1.1)`;
-        movingEl.style.opacity = 0.9;
-        setTimeout(() => {
-            foodEl.remove();
-            createFood();
-            locked = false;
-            movingEl.style.transform = `rotateZ(${rotateDegree}deg) scale(1)`;
-            movingEl.style.opacity = 1;
-        }, 501);
-    }
+    
+    
 }
 
 function collide(div1, div2){
