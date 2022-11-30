@@ -9,6 +9,7 @@ let score = 0;
 
 let locked = false;
 let rotateDegree = 0;
+let movePx = 30;
 
 function increaseTime(){
     seconds++;
@@ -44,10 +45,9 @@ createFood();
 createFood();
 createFood();
 
+document.addEventListener('keydown', move);
 
-
-
-document.addEventListener('keydown', (e) => {
+function move(e){
     if(locked){
         return;
     }
@@ -55,50 +55,49 @@ document.addEventListener('keydown', (e) => {
     let top = movingEl.offsetTop;
     if(e.code === "ArrowRight"){
         rotateDegree = 90;
-        if(left <= containerEl.offsetWidth - 20 - movingEl.offsetWidth){
-            movingEl.style.left = `${left + 20}px`;
+        if(left <= containerEl.offsetWidth - movePx - movingEl.offsetWidth){
+            movingEl.style.left = `${left + movePx}px`;
             movingEl.style.transform = `rotateZ(${rotateDegree}deg) scale(1)`;
         }
         eat();
     }
     else if(e.code === "ArrowDown"){
         rotateDegree = 180;
-        if(top <= containerEl.offsetHeight - 20 - movingEl.offsetHeight){
-            movingEl.style.top = `${top + 20}px`;
+        if(top <= containerEl.offsetHeight - movePx - movingEl.offsetHeight){
+            movingEl.style.top = `${top + movePx}px`;
             movingEl.style.transform = `rotateZ(${rotateDegree}deg) scale(1)`;
         }
         eat();
     }
     else if(e.code === "ArrowUp") {
-        if(top >= 20){
+        if(top >= movePx){
             rotateDegree = 0;
-            movingEl.style.top = `${top - 20}px`;
+            movingEl.style.top = `${top - movePx}px`;
              movingEl.style.transform = `rotateZ(${rotateDegree}deg) scale(1)`;
         }
         eat();
     }
     else if(e.code === "ArrowLeft") {
-        if(left >= 20){
+        if(left >= movePx){
             rotateDegree = 270;
-            movingEl.style.left = `${left - 20}px`;
+            movingEl.style.left = `${left - movePx}px`;
             movingEl.style.transform = `rotateZ(${rotateDegree}deg) scale(1)`;
         }
         eat();
     }
-});
+}
 
 function getRandomLocation() {
     const width = containerEl.offsetWidth;
     const height = containerEl.offsetHeight;
-    const x = Math.floor(Math.random() * (width - 150)) + 75;
-    const y = Math.floor(Math.random() * (height - 150)) + 75;
+    const x = Math.floor(Math.random() * (width - movingEl.offsetWidth)) + Math.floor(movingEl.offsetWidth / 2);
+    const y = Math.floor(Math.random() * (height - movingEl.offsetHeight)) + Math.floor(movingEl.offsetHeight / 2);
     return {x,y};
 }
 
-function eat(){
-    let foods = document.querySelectorAll('.food');
-    foods.forEach(food => {
-        let intersect = collide(movingEl, food);
+
+function checkEatBacteria(food){
+    let intersect = collide(movingEl, food);
 
         if(intersect){
             locked = true;
@@ -115,10 +114,11 @@ function eat(){
                 movingEl.style.opacity = 1;
             }, 501);
         }
-    });
-    
-    
-    
+}
+
+function eat(){
+    let foods = document.querySelectorAll('.food');
+    foods.forEach(food => checkEatBacteria(food));
 }
 
 function collide(div1, div2){
